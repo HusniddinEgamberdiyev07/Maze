@@ -35,3 +35,4 @@ class Generator:
                     dfs(nr, nc)
 
         dfs(1, 1)
+

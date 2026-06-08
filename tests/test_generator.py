@@ -37,3 +37,17 @@ def test_generator_creates_vertical_path():
     generator.generate_recursive()
 
     assert grid.cells[2][1] == 1
+
+def test_generator_keeps_outer_walls():
+    grid = Grid(7, 7)
+
+    generator = Generator(grid)
+    generator.generate_recursive()
+
+    for col in range(grid.cols):
+        assert grid.cells[0][col] == 0
+        assert grid.cells[grid.rows - 1][col] == 0
+
+    for row in range(grid.rows):
+        assert grid.cells[row][0] == 0
+        assert grid.cells[row][grid.cols - 1] == 0
