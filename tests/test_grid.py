@@ -21,3 +21,19 @@ def test_grid_starts_with_walls():
         [0, 0, 0],
         [0, 0, 0]
     ]
+
+
+def test_create_path():
+    grid = Grid(3, 3)
+
+    grid.create_path(1, 1)
+
+    assert grid.cells[1][1] == 1
+
+
+def test_mark_explored():
+    grid = Grid(3, 3)
+
+    grid.mark_explored(1, 1)
+
+    assert grid.cells[1][1] == 2
