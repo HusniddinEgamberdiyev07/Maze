@@ -51,3 +51,36 @@ def test_generator_keeps_outer_walls():
     for row in range(grid.rows):
         assert grid.cells[row][0] == 0
         assert grid.cells[row][grid.cols - 1] == 0
+
+def test_generator_does_not_fill_every_cell():
+    grid = Grid(7, 7)
+
+    generator = Generator(grid)
+    generator.generate_recursive()
+
+    wall_count = 0
+
+    for row in grid.cells:
+        for cell in row:
+            if cell == 0:
+                wall_count += 1
+
+    assert wall_count > 0
+
+def test_generator_creates_more_paths_than_walls():
+    grid = Grid(7, 7)
+
+    generator = Generator(grid)
+    generator.generate_recursive()
+
+    paths = 0
+    walls = 0
+
+    for row in grid.cells:
+        for cell in row:
+            if cell == 1:
+                paths += 1
+            else:
+                walls += 1
+
+    assert paths > walls
