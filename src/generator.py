@@ -3,28 +3,35 @@ import random
 class Generator:
     def __init__(self, grid):
         self.grid = grid
+        self.rows = grid.rows
+        self.cols = grid.cols
 
-    def carve(self, row, col):
-        self.grid.cells[row][col] = 1
-
-    def carve_corridor(self, row, start_col, length):
-        for col in range(start_col, start_col + length):
-            self.grid.cells[row][col] = 1
-
-    def generate(self):
-        rows = self.grid.rows
-        cols = self.grid.cols
-
-        # simple random walk (first version of maze)
-        r, c = 1, 1
+    def carve(self, r, c):
         self.grid.cells[r][c] = 1
 
-        for _ in range(rows * cols):
-            direction = random.choice([(0,1), (1,0), (0,-1), (-1,0)])
+    def generate_recursive(self):
+        visited = [[False] * self.cols for _ in range(self.rows)]
 
-            nr = r + direction[0]
-            nc = c + direction[1]
+        def is_valid(r, c):
+            return 0 < r < self.rows - 1 and 0 < c < self.cols - 1
 
-            if 0 < nr < rows-1 and 0 < nc < cols-1:
-                self.grid.cells[nr][nc] = 1
-                r, c = nr, nc
+        def get_neighbors(r, c):
+            directions = [(0,1), (1,0), (0,-1), (-1,0)]
+            random.shuffle(directions)
+
+            result = []
+            for dr, dc in directions:
+                nr, nc = r + dr, c + dc
+                if is_valid(nr, nc) and not visited[nr][nc]:
+                    result.append((nr, nc))
+            return result
+
+        def dfs(r, c):
+            visited[r][c] = True
+            self.grid.cells[r][c] = 1
+
+            for nr, nc in get_neighbors(r, c):
+                if not visited[nr][nc]:
+                    dfs(nr, nc)
+
+        dfs(1, 1)
