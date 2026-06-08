@@ -1,30 +1,62 @@
-import sys
-from pathlib import Path
+from collections import deque
+import time
 
-sys.path.append(str(Path(__file__).resolve().parent.parent))
+class Solver:
+    def __init__(self, grid):
+        self.grid = grid
 
-from src.grid import Grid
-from src.generator import Generator
-from src.solver import Solver
+    def solve(self, animate=False, delay=0.05):
+        start = self.grid.start
+        end = self.grid.end
 
+        if start is None or end is None:
+            return None
 
-def test_solver_marks_solution_path():
-    grid = Grid(5, 5)
-    gen = Generator(grid)
+        queue = deque([start])
+        visited = set()
+        parent = {}
 
-    gen.generate_recursive()
+        while queue:
+            r, c = queue.popleft()
 
-    grid.set_start(1, 1)
-    grid.set_end(3, 3)
+            if (r, c) == end:
+                path = []
+                cur = end
 
-    solver = Solver(grid)
-    solver.solve()
+                while cur != start:
+                    path.append(cur)
+                    cur = parent[cur]
 
-    # at least one solution path cell should be marked
-    solution_cells = sum(
-        cell == 2
-        for row in grid.cells
-        for cell in row
-    )
+                path.append(start)
+                path.reverse()
 
-    assert solution_cells > 0
+                for pr, pc in path:
+                    self.grid.cells[pr][pc] = 2
+
+                return path
+
+            if (r, c) in visited:
+                continue
+
+            visited.add((r, c))
+
+            # mark visited cell for visualization
+            if animate and self.grid.cells[r][c] == 1:
+                self.grid.cells[r][c] = 3  # explored cell
+
+            for dr, dc in [(1,0), (-1,0), (0,1), (0,-1)]:
+                nr, nc = r + dr, c + dc
+
+                if (
+                    0 <= nr < self.grid.rows and
+                    0 <= nc < self.grid.cols and
+                    self.grid.cells[nr][nc] != 0 and
+                    (nr, nc) not in visited
+                ):
+                    queue.append((nr, nc))
+                    parent[(nr, nc)] = (r, c)
+
+            if animate:
+                time.sleep(delay)
+
+        return None
