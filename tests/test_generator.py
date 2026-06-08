@@ -21,3 +21,11 @@ def test_generator_creates_some_paths():
                 path_count += 1
 
     assert path_count > 0
+
+def test_generator_creates_starting_path():
+    grid = Grid(7, 7)
+
+    generator = Generator(grid)
+    generator.generate_recursive()
+
+    assert grid.cells[1][1] == 1
