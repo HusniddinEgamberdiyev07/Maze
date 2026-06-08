@@ -47,3 +47,40 @@ def test_generator_has_reasonable_density():
 
     # 20%–60% paths is realistic for small maze
     assert 0.2 * total < paths < 0.6 * total
+
+from collections import deque
+
+def test_maze_is_solvable():
+    grid = Grid(7, 7)
+    generator = Generator(grid)
+    generator.generate_recursive()
+
+    start = grid.start if grid.start else (1, 1)
+    end = grid.end if grid.end else (5, 5)
+
+    visited = set()
+    queue = deque([start])
+
+    while queue:
+        r, c = queue.popleft()
+
+        if (r, c) == end:
+            assert True
+            return
+
+        if (r, c) in visited:
+            continue
+
+        visited.add((r, c))
+
+        for dr, dc in [(1,0), (-1,0), (0,1), (0,-1)]:
+            nr, nc = r + dr, c + dc
+
+            if (
+                0 <= nr < grid.rows and
+                0 <= nc < grid.cols and
+                grid.cells[nr][nc] == 1
+            ):
+                queue.append((nr, nc))
+
+    assert False, "Maze is not solvable" 
