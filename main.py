@@ -18,13 +18,15 @@ def move(dx, dy):
     r, c = grid.player
     nr, nc = r + dx, c + dy
 
-    # safety check: inside grid
-    if nr < 0 or nr >= grid.rows or nc < 0 or nc >= grid.cols:
+    # boundary check
+    if not (0 <= nr < grid.rows and 0 <= nc < grid.cols):
         return
 
     # wall check
-    if grid.cells[nr][nc] != 0:
-        grid.set_player(nr, nc)
+    if grid.cells[nr][nc] == 0:
+        return
+
+    grid.set_player(nr, nc)
 
 
 while True:
