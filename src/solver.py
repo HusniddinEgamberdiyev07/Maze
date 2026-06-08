@@ -1,55 +1,61 @@
 from collections import deque
+import time
 
 class Solver:
     def __init__(self, grid):
         self.grid = grid
 
-    def solve(self):
+    def solve(self, animate=False, delay=0.0):
         start = self.grid.start
         end = self.grid.end
 
-        if not start or not end:
-            return
+        if start is None or end is None:
+            return None
 
-        rows = self.grid.rows
-        cols = self.grid.cols
-
-        queue = deque()
-        visited = [[False] * cols for _ in range(rows)]
+        queue = deque([start])
+        visited = set()
         parent = {}
 
-        sr, sc = start
-        er, ec = end
-
-        queue.append((sr, sc))
-        visited[sr][sc] = True
-        parent[(sr, sc)] = None
-
-        # BFS search
         while queue:
             r, c = queue.popleft()
 
-            if (r, c) == (er, ec):
-                break
+            if (r, c) == end:
+                path = []
+                cur = end
 
-            for dr, dc in [(0,1), (1,0), (0,-1), (-1,0)]:
+                while cur != start:
+                    path.append(cur)
+                    cur = parent[cur]
+
+                path.append(start)
+                path.reverse()
+
+                for pr, pc in path:
+                    self.grid.cells[pr][pc] = 2
+
+                return path
+
+            if (r, c) in visited:
+                continue
+
+            visited.add((r, c))
+
+            if animate and self.grid.cells[r][c] == 1:
+                self.grid.cells[r][c] = 3  # explored
+
+            for dr, dc in [(1,0), (-1,0), (0,1), (0,-1)]:
                 nr, nc = r + dr, c + dc
 
                 if (
-                    0 <= nr < rows and
-                    0 <= nc < cols and
-                    not visited[nr][nc] and
-                    self.grid.cells[nr][nc] != 0
+                    0 <= nr < self.grid.rows and
+                    0 <= nc < self.grid.cols and
+                    self.grid.cells[nr][nc] != 0 and
+                    (nr, nc) not in visited
                 ):
                     queue.append((nr, nc))
-                    visited[nr][nc] = True
                     parent[(nr, nc)] = (r, c)
 
-        # reconstruct path
-        node = (er, ec)
+            if animate:
+                time.sleep(delay)
 
-        while node in parent and parent[node] is not None:
-            r, c = node
-            if node != start and node != end:
-                self.grid.cells[r][c] = 2
-            node = parent[node]
+        return None

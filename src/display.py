@@ -3,11 +3,12 @@ class Display:
     SYMBOLS = {
         0: "#",
         1: " ",
-        2: "."
+        2: ".",
+        3: "·"
     }
 
     @staticmethod
-    def render(grid):
+    def render(grid, game=None):
         lines = []
 
         for r, row in enumerate(grid.cells):
@@ -15,14 +16,14 @@ class Display:
 
             for c, cell in enumerate(row):
 
-                if grid.player == (r, c):
+                if game and game.player == (r, c):
                     line += "P"
                 elif grid.start == (r, c):
                     line += "S"
                 elif grid.end == (r, c):
                     line += "E"
                 else:
-                    line += Display.SYMBOLS[cell]
+                    line += Display.SYMBOLS.get(cell, "?")
 
             lines.append(line)
 

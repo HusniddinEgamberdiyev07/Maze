@@ -10,19 +10,15 @@ class Grid:
 
         self.start = None
         self.end = None
-        self.player = None
 
-    def create_path(self, row, col):
-        self.cells[row][col] = 1
+    def create_path(self, r, c):
+        self.cells[r][c] = 1
 
-    def mark_explored(self, row, col):
-        self.cells[row][col] = 2
+    def mark_explored(self, r, c):
+        self.cells[r][c] = 2
 
-    def set_start(self, row, col):
-        self.start = (row, col)
+    def set_start(self, r, c):
+        self.start = (r, c)
 
-    def set_end(self, row, col):
-        self.end = (row, col)
-
-    def set_player(self, row, col):
-        self.player = (row, col)
+    def set_end(self, r, c):
+        self.end = (r, c)
