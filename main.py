@@ -1,4 +1,5 @@
 import os
+import time
 from src.grid import Grid
 from src.display import Display
 from src.generator import Generator
@@ -24,7 +25,9 @@ def choose_level():
         print("Invalid choice, defaulting to Easy")
         return Grid(7, 7)
 
+
 grid = choose_level()
+
 gen = Generator(grid)
 gen.generate_recursive()
 
@@ -37,7 +40,7 @@ solver = Solver(grid)
 
 
 def draw():
-    os.system("cls")  # Windows clear screen
+    os.system("cls" if os.name == "nt" else "clear")
     print(Display.render(grid))
 
 
@@ -65,21 +68,18 @@ while True:
         game.move_player(1, 0)
 
     elif cmd == "a":
-        print("\n🤖 Solving...\n")
-        
-        path = solver.solve(animate=True, delay=0.05)
-        
-        draw()
-        
-        if path:
-            print("\n✅ Path found!")
-        else:
-            print("\n❌ No path found")
-            
-        input("\nPress Enter to continue...")
-        
-        # 🔥 RESET VISUALIZATION (important)
-        for r in range(grid.rows):
-            for c in range(grid.cols):
-                if grid.cells[r][c] in (2, 3):
-                    grid.cells[r][c] = 1
+        path = solver.solve()
+
+        if not path:
+            print("No path found!")
+            continue
+
+        # animate movement step-by-step
+        for r, c in path:
+            grid.player = (r, c)
+
+            draw()
+            time.sleep(0.05)
+
+        print("\n🎉 Auto-solve completed!")
+        input("Press Enter to continue...")
