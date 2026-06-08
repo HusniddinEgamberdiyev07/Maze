@@ -8,7 +8,7 @@ from src.generator import Generator
 from src.solver import Solver
 
 
-def test_solver_finds_path():
+def test_solver_marks_solution_path():
     grid = Grid(5, 5)
     gen = Generator(grid)
 
@@ -20,6 +20,11 @@ def test_solver_finds_path():
     solver = Solver(grid)
     solver.solve()
 
-    # start should be visited
-    assert grid.start is not None
-    assert grid.end is not None
+    # at least one solution path cell should be marked
+    solution_cells = sum(
+        cell == 2
+        for row in grid.cells
+        for cell in row
+    )
+
+    assert solution_cells > 0

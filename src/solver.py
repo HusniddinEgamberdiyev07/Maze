@@ -14,20 +14,23 @@ class Solver:
         rows = self.grid.rows
         cols = self.grid.cols
 
-        visited = [[False] * cols for _ in range(rows)]
         queue = deque()
+        visited = [[False] * cols for _ in range(rows)]
+        parent = {}
 
         sr, sc = start
         er, ec = end
 
         queue.append((sr, sc))
         visited[sr][sc] = True
+        parent[(sr, sc)] = None
 
+        # BFS search
         while queue:
             r, c = queue.popleft()
 
             if (r, c) == (er, ec):
-                return True
+                break
 
             for dr, dc in [(0,1), (1,0), (0,-1), (-1,0)]:
                 nr, nc = r + dr, c + dc
@@ -38,7 +41,15 @@ class Solver:
                     not visited[nr][nc] and
                     self.grid.cells[nr][nc] != 0
                 ):
-                    visited[nr][nc] = True
                     queue.append((nr, nc))
+                    visited[nr][nc] = True
+                    parent[(nr, nc)] = (r, c)
 
-        return False
+        # reconstruct path
+        node = (er, ec)
+
+        while node in parent and parent[node] is not None:
+            r, c = node
+            if node != start and node != end:
+                self.grid.cells[r][c] = 2
+            node = parent[node]
