@@ -1,9 +1,9 @@
 class Display:
 
     SYMBOLS = {
-        0: "#",   # wall
-        1: " ",   # path
-        2: ".",   # solution path
+        0: "#",
+        1: " ",
+        2: "."
     }
 
     @staticmethod
@@ -15,7 +15,9 @@ class Display:
 
             for c, cell in enumerate(row):
 
-                if grid.start == (r, c):
+                if grid.player == (r, c):
+                    line += "P"
+                elif grid.start == (r, c):
                     line += "S"
                 elif grid.end == (r, c):
                     line += "E"

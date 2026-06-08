@@ -1,7 +1,6 @@
 from src.grid import Grid
 from src.display import Display
 from src.generator import Generator
-from src.solver import Solver
 
 grid = Grid(7, 7)
 
@@ -11,7 +10,25 @@ gen.generate_recursive()
 grid.set_start(1, 1)
 grid.set_end(5, 5)
 
-solver = Solver(grid)
-solver.solve()
+grid.set_player(1, 1)
 
-print(Display.render(grid))
+
+def move(dx, dy):
+    r, c = grid.player
+    nr, nc = r + dx, c + dy
+
+    # safety check: inside grid
+    if nr < 0 or nr >= grid.rows or nc < 0 or nc >= grid.cols:
+        return
+
+    # wall check
+    if grid.cells[nr][nc] != 0:
+        grid.set_player(nr, nc)
+
+
+while True:
+    print(Display.render(grid))
+
+    if grid.player == grid.end:
+        print("🎉 YOU WIN!")
+        break

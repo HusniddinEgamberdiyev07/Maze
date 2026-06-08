@@ -10,6 +10,7 @@ class Grid:
 
         self.start = None
         self.end = None
+        self.player = None
 
     def create_path(self, row, col):
         self.cells[row][col] = 1
@@ -22,3 +23,6 @@ class Grid:
 
     def set_end(self, row, col):
         self.end = (row, col)
+
+    def set_player(self, row, col):
+        self.player = (row, col)
