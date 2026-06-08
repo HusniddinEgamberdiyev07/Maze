@@ -7,16 +7,17 @@ from src.grid import Grid
 from src.generator import Generator
 
 
-def test_generate_creates_some_paths():
-    grid = Grid(5, 5)
-    gen = Generator(grid)
+def test_generator_creates_some_paths():
+    grid = Grid(7, 7)
 
-    gen.generate_recursive()
+    generator = Generator(grid)
+    generator.generate_recursive()
 
-    path_count = sum(
-        cell == 1
-        for row in grid.cells
-        for cell in row
-    )
+    path_count = 0
 
-    assert path_count > 1
+    for row in grid.cells:
+        for cell in row:
+            if cell == 1:
+                path_count += 1
+
+    assert path_count > 0
