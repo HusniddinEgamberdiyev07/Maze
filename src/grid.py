@@ -8,8 +8,17 @@ class Grid:
             for _ in range(rows)
         ]
 
+        self.start = None
+        self.end = None
+
     def create_path(self, row, col):
         self.cells[row][col] = 1
 
     def mark_explored(self, row, col):
         self.cells[row][col] = 2
+
+    def set_start(self, row, col):
+        self.start = (row, col)
+
+    def set_end(self, row, col):
+        self.end = (row, col)

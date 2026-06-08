@@ -37,3 +37,19 @@ def test_mark_explored():
     grid.mark_explored(1, 1)
 
     assert grid.cells[1][1] == 2
+
+
+def test_set_start():
+    grid = Grid(5, 5)
+
+    grid.set_start(1, 1)
+
+    assert grid.start == (1, 1)
+
+
+def test_set_end():
+    grid = Grid(5, 5)
+
+    grid.set_end(3, 3)
+
+    assert grid.end == (3, 3)
