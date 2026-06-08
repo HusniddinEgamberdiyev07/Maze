@@ -33,3 +33,18 @@ def test_player_cannot_move_through_wall():
     game.move_player(0, 1)
 
     assert grid.player == (1, 1)
+
+def test_player_reaches_end():
+    grid = Grid(3, 3)
+
+    grid.create_path(1, 1)
+    grid.create_path(1, 2)
+
+    grid.set_player(1, 1)
+    grid.set_end(1, 2)
+
+    game = Game(grid)
+
+    game.move_player(0, 1)
+
+    assert grid.player == grid.end

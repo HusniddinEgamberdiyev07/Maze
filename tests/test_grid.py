@@ -40,7 +40,7 @@ def test_mark_explored():
 
 
 def test_set_start():
-    grid = Grid(5, 5)
+    grid = Grid(3, 3)
 
     grid.set_start(1, 1)
 
@@ -48,8 +48,8 @@ def test_set_start():
 
 
 def test_set_end():
-    grid = Grid(5, 5)
+    grid = Grid(3, 3)
 
-    grid.set_end(3, 3)
+    grid.set_end(2, 2)
 
-    assert grid.end == (3, 3)
+    assert grid.end == (2, 2)
