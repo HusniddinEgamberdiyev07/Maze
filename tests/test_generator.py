@@ -29,3 +29,11 @@ def test_generator_creates_starting_path():
     generator.generate_recursive()
 
     assert grid.cells[1][1] == 1
+
+def test_generator_creates_vertical_path():
+    grid = Grid(7, 7)
+
+    generator = Generator(grid)
+    generator.generate_recursive()
+
+    assert grid.cells[2][1] == 1
