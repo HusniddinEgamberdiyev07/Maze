@@ -3,41 +3,60 @@ from src.grid import Grid
 from src.display import Display
 from src.generator import Generator
 from src.game import Game
+from src.solver import Solver
+
 
 grid = Grid(7, 7)
 
-Generator(grid).generate_recursive()
+gen = Generator(grid)
+gen.generate_recursive()
 
 grid.set_start(1, 1)
 grid.set_end(5, 5)
+grid.player = (1, 1)
 
 game = Game(grid)
+solver = Solver(grid)
 
-game.player = grid.start
 
-
-def move(dx, dy):
-    game.move_player(dx, dy)
+def draw():
+    os.system("cls")  # Windows clear screen
+    print(Display.render(grid))
 
 
 while True:
-    os.system("cls")
+    draw()
 
-    print(Display.render(grid, game))
+    print("\nControls:")
+    print("WASD = move")
+    print("A = auto solve")
+    print("Q = quit")
 
-    if game.is_won():
-        print("🎉 YOU WIN!")
+    if grid.player == grid.end:
+        print("\n🎉 YOU WIN!")
         break
 
-    cmd = input("Move (WASD, Q=quit): ").lower()
+    cmd = input("Move: ").lower()
 
     if cmd == "q":
         break
+
     elif cmd == "w":
-        move(-1, 0)
+        game.move_player(-1, 0)
+
     elif cmd == "s":
-        move(1, 0)
+        game.move_player(1, 0)
+
     elif cmd == "a":
-        move(0, -1)
-    elif cmd == "d":
-        move(0, 1)
+        print("\n🤖 Solving...\n")
+
+        path = solver.solve(animate=True, delay=0.05)
+
+        draw()
+
+        if path:
+            print("\n✅ Path found!")
+        else:
+            print("\n❌ No path found")
+
+        input("\nPress Enter to continue...")

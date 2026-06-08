@@ -9,42 +9,19 @@ class Solver:
         start = self.grid.start
         end = self.grid.end
 
-        if start is None or end is None:
-            return None
-
         queue = deque([start])
-        visited = set()
+        visited = set([start])
         parent = {}
+
+        directions = [(1,0), (-1,0), (0,1), (0,-1)]
 
         while queue:
             r, c = queue.popleft()
 
             if (r, c) == end:
-                path = []
-                cur = end
+                break
 
-                while cur != start:
-                    path.append(cur)
-                    cur = parent[cur]
-
-                path.append(start)
-                path.reverse()
-
-                for pr, pc in path:
-                    self.grid.cells[pr][pc] = 2
-
-                return path
-
-            if (r, c) in visited:
-                continue
-
-            visited.add((r, c))
-
-            # mark visited cell for visualization
-            if animate and self.grid.cells[r][c] == 1:
-                self.grid.cells[r][c] = 3  # explored cell
-
-            for dr, dc in [(1,0), (-1,0), (0,1), (0,-1)]:
+            for dr, dc in directions:
                 nr, nc = r + dr, c + dc
 
                 if (
@@ -53,10 +30,27 @@ class Solver:
                     self.grid.cells[nr][nc] != 0 and
                     (nr, nc) not in visited
                 ):
-                    queue.append((nr, nc))
+                    visited.add((nr, nc))
                     parent[(nr, nc)] = (r, c)
+                    queue.append((nr, nc))
 
-            if animate:
-                time.sleep(delay)
+                    if animate:
+                        self.grid.cells[nr][nc] = 3
+                        time.sleep(delay)
 
-        return None
+        # rebuild path
+        path = []
+        cur = end
+
+        while cur in parent:
+            path.append(cur)
+            cur = parent[cur]
+
+        path.append(start)
+        path.reverse()
+
+        for r, c in path:
+            if self.grid.cells[r][c] != 0:
+                self.grid.cells[r][c] = 2
+
+        return path if path and path[0] == start else None
