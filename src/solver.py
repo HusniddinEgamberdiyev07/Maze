@@ -50,7 +50,7 @@ class Solver:
         path.reverse()
 
         for r, c in path:
-            if self.grid.cells[r][c] != 0:
+            if (r, c) != self.grid.start and (r, c) != self.grid.end:
                 self.grid.cells[r][c] = 2
 
         return path if path and path[0] == start else None

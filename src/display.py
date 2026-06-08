@@ -1,29 +1,30 @@
 class Display:
 
     SYMBOLS = {
-        0: "#",
-        1: " ",
-        2: ".",
-        3: "·"
+        0: "█",   # wall
+        1: "·",   # path
+        2: "*",   # SOLUTION PATH
+        3: "·"    # explored
     }
 
     @staticmethod
-    def render(grid, game=None):
+    def render(grid):
         lines = []
 
         for r, row in enumerate(grid.cells):
             line = ""
 
             for c, cell in enumerate(row):
+                pos = (r, c)
 
-                if game and game.player == (r, c):
-                    line += "P"
-                elif grid.start == (r, c):
+                if pos == grid.start:
                     line += "S"
-                elif grid.end == (r, c):
+                elif pos == grid.end:
                     line += "E"
+                elif pos == grid.player:
+                    line += "P"
                 else:
-                    line += Display.SYMBOLS.get(cell, "?")
+                    line += Display.SYMBOLS.get(cell, " ")
 
             lines.append(line)
 
