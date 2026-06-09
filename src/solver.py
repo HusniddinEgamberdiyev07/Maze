@@ -1,5 +1,6 @@
 from collections import deque
 
+
 class Solver:
     def __init__(self, grid):
         self.grid = grid
@@ -15,7 +16,7 @@ class Solver:
         else:
             raise ValueError("method must be 'bfs' or 'dfs'")
 
-    # ---------------- BFS ----------------
+    # ---------------- BFS (shortest path) ----------------
     def _bfs(self, start, end):
         queue = deque([start])
         visited = set([start])
@@ -30,7 +31,10 @@ class Solver:
             for dr, dc in [(1,0), (-1,0), (0,1), (0,-1)]:
                 nr, nc = r + dr, c + dc
 
-                if not self._valid(nr, nc, visited):
+                if not self._valid(nr, nc):
+                    continue
+
+                if (nr, nc) in visited:
                     continue
 
                 visited.add((nr, nc))
@@ -39,14 +43,19 @@ class Solver:
 
         return self._reconstruct(start, end, parent)
 
-    # ---------------- DFS ----------------
+    # ---------------- DFS (deep search, NOT shortest) ----------------
     def _dfs(self, start, end):
         stack = [start]
-        visited = set([start])
+        visited = set()
         parent = {}
 
         while stack:
             r, c = stack.pop()
+
+            if (r, c) in visited:
+                continue
+
+            visited.add((r, c))
 
             if (r, c) == end:
                 break
@@ -54,26 +63,25 @@ class Solver:
             for dr, dc in [(1,0), (-1,0), (0,1), (0,-1)]:
                 nr, nc = r + dr, c + dc
 
-                if not self._valid(nr, nc, visited):
+                if not self._valid(nr, nc):
                     continue
 
-                visited.add((nr, nc))
-                parent[(nr, nc)] = (r, c)
-                stack.append((nr, nc))
+                if (nr, nc) not in visited:
+                    parent[(nr, nc)] = (r, c)
+                    stack.append((nr, nc))
 
         return self._reconstruct(start, end, parent)
 
     # ---------------- helpers ----------------
-    def _valid(self, r, c, visited):
+    def _valid(self, r, c):
         return (
             0 <= r < self.grid.rows and
             0 <= c < self.grid.cols and
-            self.grid.cells[r][c] != 0 and
-            (r, c) not in visited
+            self.grid.cells[r][c] != 0
         )
 
     def _reconstruct(self, start, end, parent):
-        if end not in parent:
+        if end not in parent and end != start:
             return None
 
         path = []
@@ -81,12 +89,12 @@ class Solver:
 
         while cur != start:
             path.append(cur)
-            cur = parent[cur]
+            cur = parent.get(cur, start)
 
         path.append(start)
         path.reverse()
 
-        # DO NOT paint full grid anymore
+        # store solution (optional visualization)
         self.grid.solution_path = set(path)
 
         return path

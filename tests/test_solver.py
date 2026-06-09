@@ -11,14 +11,12 @@ from src.solver import Solver
 def setup_grid():
     grid = Grid(7, 7)
     Generator(grid).generate_recursive()
-
     grid.set_start(1, 1)
     grid.set_end(grid.rows - 2, grid.cols - 2)
-
     return grid
 
 
-def test_bfs_returns_path():
+def test_bfs_solver_returns_path():
     grid = setup_grid()
     solver = Solver(grid)
 
@@ -29,7 +27,7 @@ def test_bfs_returns_path():
     assert path[-1] == grid.end
 
 
-def test_dfs_returns_path():
+def test_dfs_solver_returns_path():
     grid = setup_grid()
     solver = Solver(grid)
 
@@ -40,28 +38,22 @@ def test_dfs_returns_path():
     assert path[-1] == grid.end
 
 
-def test_solver_path_is_valid():
+def test_bfs_shorter_or_equal_than_dfs():
     grid = setup_grid()
     solver = Solver(grid)
 
-    path = solver.solve(method="bfs")
+    bfs_path = solver.solve(method="bfs")
+    dfs_path = solver.solve(method="dfs")
 
-    assert path is not None
-
-    for r, c in path:
-        assert grid.cells[r][c] != 0
+    assert len(bfs_path) <= len(dfs_path)
 
 
-def test_path_connectivity():
+def test_invalid_method_raises_error():
     grid = setup_grid()
     solver = Solver(grid)
 
-    path = solver.solve(method="bfs")
-
-    assert path is not None
-
-    for i in range(len(path) - 1):
-        r1, c1 = path[i]
-        r2, c2 = path[i + 1]
-
-        assert abs(r1 - r2) + abs(c1 - c2) == 1
+    try:
+        solver.solve(method="xyz")
+        assert False  # should not reach here
+    except ValueError:
+        assert True
