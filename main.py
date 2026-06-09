@@ -21,9 +21,9 @@ def choose_level():
         return Grid(15, 15)
     elif choice == "3":
         return Grid(25, 25)
-    else:
-        print("Invalid choice, defaulting to Easy")
-        return Grid(7, 7)
+
+    print("Invalid choice, defaulting to Easy")
+    return Grid(7, 7)
 
 
 grid = choose_level()
@@ -38,9 +38,19 @@ grid.player = (1, 1)
 game = Game(grid)
 solver = Solver(grid)
 
+start_time = time.time()
+
 
 def draw():
     os.system("cls" if os.name == "nt" else "clear")
+
+    elapsed = int(time.time() - start_time)
+
+    print("=== MAZE GAME ===")
+    print(f"Steps: {game.steps}")
+    print(f"Time: {elapsed}s")
+    print()
+
     print(Display.render(grid))
 
 
@@ -52,8 +62,12 @@ while True:
     print("A = auto solve")
     print("Q = quit")
 
-    if grid.player == grid.end:
+    if game.is_won():
+        elapsed = int(time.time() - start_time)
+
         print("\n🎉 YOU WIN!")
+        print(f"Steps: {game.steps}")
+        print(f"Time: {elapsed}s")
         break
 
     cmd = input("Move: ").lower()
@@ -72,14 +86,19 @@ while True:
 
         if not path:
             print("No path found!")
+            input("Press Enter...")
             continue
 
-        # animate movement step-by-step
         for r, c in path:
             grid.player = (r, c)
 
             draw()
             time.sleep(0.05)
 
+        elapsed = int(time.time() - start_time)
+
         print("\n🎉 Auto-solve completed!")
+        print(f"Steps: {game.steps}")
+        print(f"Time: {elapsed}s")
+
         input("Press Enter to continue...")
