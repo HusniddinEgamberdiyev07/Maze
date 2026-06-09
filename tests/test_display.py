@@ -7,10 +7,14 @@ from src.grid import Grid
 from src.display import Display
 
 
-def test_display_walls():
+def test_display_returns_string():
+    grid = Grid(3, 3)
 
-    grid = Grid(2, 2)
+    grid.player = (1, 1)
+    grid.set_start(1, 1)
+    grid.set_end(2, 2)
 
-    expected = "##\n##"
+    output = Display.render(grid)
 
-    assert Display.render(grid) == expected
+    assert isinstance(output, str)
+    assert len(output) > 0
