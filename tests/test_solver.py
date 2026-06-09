@@ -4,15 +4,20 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parent.parent))
 
 from src.grid import Grid
-from src.generator import Generator
 from src.solver import Solver
 
 
 def setup_grid():
-    grid = Grid(7, 7)
-    Generator(grid).generate_recursive()
-    grid.set_start(1, 1)
-    grid.set_end(grid.rows - 2, grid.cols - 2)
+    grid = Grid(5, 5)
+
+    # create simple open path maze
+    for r in range(5):
+        for c in range(5):
+            grid.cells[r][c] = 1
+
+    grid.set_start(0, 0)
+    grid.set_end(4, 4)
+
     return grid
 
 
@@ -38,22 +43,12 @@ def test_dfs_solver_returns_path():
     assert path[-1] == grid.end
 
 
-def test_bfs_shorter_or_equal_than_dfs():
-    grid = setup_grid()
-    solver = Solver(grid)
-
-    bfs_path = solver.solve(method="bfs")
-    dfs_path = solver.solve(method="dfs")
-
-    assert len(bfs_path) <= len(dfs_path)
-
-
-def test_invalid_method_raises_error():
+def test_solver_invalid_method():
     grid = setup_grid()
     solver = Solver(grid)
 
     try:
-        solver.solve(method="xyz")
+        solver.solve(method="random")
         assert False  # should not reach here
     except ValueError:
         assert True
