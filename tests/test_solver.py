@@ -1,56 +1,50 @@
-from collections import deque
-import time
+import sys
+from pathlib import Path
 
-class Solver:
-    def __init__(self, grid):
-        self.grid = grid
+sys.path.append(str(Path(__file__).resolve().parent.parent))
 
-    def solve(self, animate=False, delay=0.05):
-        start = self.grid.start
-        end = self.grid.end
+from src.grid import Grid
+from src.solver import Solver
 
-        queue = deque([start])
-        visited = set([start])
-        parent = {}
 
-        directions = [(1,0), (-1,0), (0,1), (0,-1)]
+def test_solver_finds_path():
+    grid = Grid(5, 5)
 
-        while queue:
-            r, c = queue.popleft()
+    for r in range(5):
+        for c in range(5):
+            grid.create_path(r, c)
 
-            if (r, c) == end:
-                break
+    grid.set_start(0, 0)
+    grid.set_end(4, 4)
 
-            for dr, dc in directions:
-                nr, nc = r + dr, c + dc
+    solver = Solver(grid)
 
-                if (
-                    0 <= nr < self.grid.rows and
-                    0 <= nc < self.grid.cols and
-                    self.grid.cells[nr][nc] != 0 and
-                    (nr, nc) not in visited
-                ):
-                    visited.add((nr, nc))
-                    parent[(nr, nc)] = (r, c)
-                    queue.append((nr, nc))
+    path = solver.solve()
 
-                    if animate:
-                        self.grid.cells[nr][nc] = 3
-                        time.sleep(delay)
+    assert path is not None
+    assert len(path) > 0
 
-        # rebuild path
-        path = []
-        cur = end
 
-        while cur in parent:
-            path.append(cur)
-            cur = parent[cur]
+def test_solver_marks_path():
+    grid = Grid(5, 5)
 
-        path.append(start)
-        path.reverse()
+    for r in range(5):
+        for c in range(5):
+            grid.create_path(r, c)
 
-        for r, c in path:
-            if self.grid.cells[r][c] != 0:
-                self.grid.cells[r][c] = 2
+    grid.set_start(0, 0)
+    grid.set_end(4, 4)
 
-        return path if path and path[0] == start else None
+    solver = Solver(grid)
+
+    path = solver.solve()
+
+    assert path is not None
+
+    marked = sum(
+        cell == 2
+        for row in grid.cells
+        for cell in row
+    )
+
+    assert marked > 0
