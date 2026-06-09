@@ -1,50 +1,46 @@
-import sys
-from pathlib import Path
-
-sys.path.append(str(Path(__file__).resolve().parent.parent))
-
 from src.grid import Grid
+from src.generator import Generator
 from src.solver import Solver
 
 
-def test_solver_finds_path():
-    grid = Grid(5, 5)
+def test_solver_bfs_returns_path():
+    grid = Grid(9, 9)
+    Generator(grid).generate_recursive()
 
-    for r in range(5):
-        for c in range(5):
-            grid.create_path(r, c)
-
-    grid.set_start(0, 0)
-    grid.set_end(4, 4)
+    grid.set_start(1, 1)
+    grid.set_end(grid.rows - 2, grid.cols - 2)
 
     solver = Solver(grid)
-
-    path = solver.solve()
+    path = solver.solve(method="bfs")
 
     assert path is not None
-    assert len(path) > 0
+    assert path[0] == grid.start
+    assert path[-1] == grid.end
 
 
-def test_solver_marks_path():
-    grid = Grid(5, 5)
+def test_solver_dfs_returns_path():
+    grid = Grid(9, 9)
+    Generator(grid).generate_recursive()
 
-    for r in range(5):
-        for c in range(5):
-            grid.create_path(r, c)
-
-    grid.set_start(0, 0)
-    grid.set_end(4, 4)
+    grid.set_start(1, 1)
+    grid.set_end(grid.rows - 2, grid.cols - 2)
 
     solver = Solver(grid)
-
-    path = solver.solve()
+    path = solver.solve(method="dfs")
 
     assert path is not None
+    assert path[0] == grid.start
+    assert path[-1] == grid.end
 
-    marked = sum(
-        cell == 2
-        for row in grid.cells
-        for cell in row
-    )
 
-    assert marked > 0
+def test_solver_path_is_valid_length():
+    grid = Grid(9, 9)
+    Generator(grid).generate_recursive()
+
+    grid.set_start(1, 1)
+    grid.set_end(grid.rows - 2, grid.cols - 2)
+
+    solver = Solver(grid)
+    path = solver.solve(method="bfs")
+
+    assert len(path) > 2

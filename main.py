@@ -1,5 +1,7 @@
 import os
 import time
+from collections import deque
+
 from src.grid import Grid
 from src.display import Display
 from src.generator import Generator
@@ -7,26 +9,42 @@ from src.game import Game
 from src.solver import Solver
 
 
-def choose_level():
-    print("Select difficulty:")
-    print("1 - Easy (7x7)")
-    print("2 - Medium (15x15)")
-    print("3 - Hard (25x25)")
+# =========================
+# CONFIG ENGINE
+# =========================
+def config():
+    print("\n=== MAIN CONFIGURATION ENGINE ===")
+    print("|-----------------------------|")
 
-    choice = input("Choose level: ")
+    width = input("Enter maze width (odd number recommended): ")
+    height = input("Enter maze height: ")
 
-    if choice == "1":
-        return Grid(7, 7)
-    elif choice == "2":
-        return Grid(15, 15)
-    elif choice == "3":
-        return Grid(25, 25)
+    try:
+        width = int(width)
+        height = int(height)
+    except:
+        print("Invalid input, defaulting to 15x15")
+        width, height = 15, 15
 
-    print("Invalid choice, defaulting to Easy")
-    return Grid(7, 7)
+    print("\nChoose solver method:")
+    print("1 - BFS (shortest path)")
+    print("2 - DFS (deep search)")
+
+    choice = input("Selection: ")
+
+    method = "bfs"
+    if choice == "2":
+        method = "dfs"
+
+    return width, height, method
 
 
-grid = choose_level()
+# =========================
+# INIT
+# =========================
+w, h, method = config()
+
+grid = Grid(h, w)
 
 gen = Generator(grid)
 gen.generate_recursive()
@@ -38,22 +56,128 @@ grid.player = (1, 1)
 game = Game(grid)
 solver = Solver(grid)
 
+
 start_time = time.time()
 
 
+# =========================
+# DRAW FUNCTION
+# =========================
 def draw():
     os.system("cls" if os.name == "nt" else "clear")
 
     elapsed = int(time.time() - start_time)
 
     print("=== MAZE GAME ===")
+    print(f"Solver: {method.upper()}")
     print(f"Steps: {game.steps}")
-    print(f"Time: {elapsed}s")
-    print()
+    print(f"Time: {elapsed}s\n")
 
     print(Display.render(grid))
 
 
+# =========================
+# BFS (manual animation)
+# =========================
+def bfs_solve():
+    start = grid.start
+    end = grid.end
+
+    queue = deque([start])
+    visited = {start}
+    parent = {}
+
+    while queue:
+        r, c = queue.popleft()
+
+        if (r, c) == end:
+            break
+
+        for dr, dc in [(1,0),(-1,0),(0,1),(0,-1)]:
+            nr, nc = r + dr, c + dc
+
+            if (
+                0 <= nr < grid.rows and
+                0 <= nc < grid.cols and
+                grid.cells[nr][nc] != 0 and
+                (nr, nc) not in visited
+            ):
+                visited.add((nr, nc))
+                parent[(nr, nc)] = (r, c)
+                queue.append((nr, nc))
+
+                grid.cells[nr][nc] = 3  # explored
+
+                draw()
+                time.sleep(0.01)
+
+    # rebuild path
+    path = []
+    cur = end
+
+    while cur in parent:
+        path.append(cur)
+        cur = parent[cur]
+
+    path.append(start)
+    path.reverse()
+
+    return path
+
+
+# =========================
+# DFS (simple version)
+# =========================
+def dfs_solve():
+    stack = [grid.start]
+    visited = set()
+    parent = {}
+
+    while stack:
+        r, c = stack.pop()
+
+        if (r, c) == grid.end:
+            break
+
+        if (r, c) in visited:
+            continue
+
+        visited.add((r, c))
+
+        for dr, dc in [(1,0),(-1,0),(0,1),(0,-1)]:
+            nr, nc = r + dr, c + dc
+
+            if (
+                0 <= nr < grid.rows and
+                0 <= nc < grid.cols and
+                grid.cells[nr][nc] != 0 and
+                (nr, nc) not in visited
+            ):
+                parent[(nr, nc)] = (r, c)
+                stack.append((nr, nc))
+
+                grid.cells[nr][nc] = 3
+
+                draw()
+                time.sleep(0.01)
+
+    # rebuild path
+    path = []
+    cur = grid.end
+
+    while cur in parent:
+        path.append(cur)
+        cur = parent[cur]
+
+    path.append(grid.start)
+    path.reverse()
+
+    return path
+
+
+# =========================
+# MAIN LOOP
+# =========================
 while True:
     draw()
 
@@ -63,11 +187,7 @@ while True:
     print("Q = quit")
 
     if game.is_won():
-        elapsed = int(time.time() - start_time)
-
         print("\n🎉 YOU WIN!")
-        print(f"Steps: {game.steps}")
-        print(f"Time: {elapsed}s")
         break
 
     cmd = input("Move: ").lower()
@@ -82,7 +202,11 @@ while True:
         game.move_player(1, 0)
 
     elif cmd == "a":
-        path = solver.solve()
+
+        if method == "bfs":
+            path = bfs_solve()
+        else:
+            path = dfs_solve()
 
         if not path:
             print("No path found!")
@@ -91,14 +215,8 @@ while True:
 
         for r, c in path:
             grid.player = (r, c)
-
             draw()
-            time.sleep(0.05)
+            time.sleep(0.03)
 
-        elapsed = int(time.time() - start_time)
-
-        print("\n🎉 Auto-solve completed!")
-        print(f"Steps: {game.steps}")
-        print(f"Time: {elapsed}s")
-
-        input("Press Enter to continue...")
+        print("\n🎉 AUTO SOLVED!")
+        input("Press Enter...")
