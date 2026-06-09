@@ -8,95 +8,85 @@ class Solver:
         start = self.grid.start
         end = self.grid.end
 
-        if method == "dfs":
+        if method == "bfs":
+            return self._bfs(start, end)
+        elif method == "dfs":
             return self._dfs(start, end)
-        return self._bfs(start, end)
+        else:
+            raise ValueError("method must be 'bfs' or 'dfs'")
 
+    # ---------------- BFS ----------------
     def _bfs(self, start, end):
         queue = deque([start])
         visited = set([start])
         parent = {}
 
-        directions = [(1,0), (-1,0), (0,1), (0,-1)]
-
-        found = False
-
         while queue:
             r, c = queue.popleft()
 
             if (r, c) == end:
-                found = True
                 break
 
-            for dr, dc in directions:
+            for dr, dc in [(1,0), (-1,0), (0,1), (0,-1)]:
                 nr, nc = r + dr, c + dc
 
-                if not (0 <= nr < self.grid.rows and 0 <= nc < self.grid.cols):
-                    continue
-
-                if self.grid.cells[nr][nc] == 0:
-                    continue
-
-                if (nr, nc) in visited:
+                if not self._valid(nr, nc, visited):
                     continue
 
                 visited.add((nr, nc))
                 parent[(nr, nc)] = (r, c)
                 queue.append((nr, nc))
 
-        return self._reconstruct(parent, start, end) if found else None
+        return self._reconstruct(start, end, parent)
 
+    # ---------------- DFS ----------------
     def _dfs(self, start, end):
         stack = [start]
         visited = set([start])
         parent = {}
 
-        directions = [(1,0), (-1,0), (0,1), (0,-1)]
-
-        found = False
-
         while stack:
             r, c = stack.pop()
 
             if (r, c) == end:
-                found = True
                 break
 
-            for dr, dc in directions:
+            for dr, dc in [(1,0), (-1,0), (0,1), (0,-1)]:
                 nr, nc = r + dr, c + dc
 
-                if not (0 <= nr < self.grid.rows and 0 <= nc < self.grid.cols):
-                    continue
-
-                if self.grid.cells[nr][nc] == 0:
-                    continue
-
-                if (nr, nc) in visited:
+                if not self._valid(nr, nc, visited):
                     continue
 
                 visited.add((nr, nc))
                 parent[(nr, nc)] = (r, c)
                 stack.append((nr, nc))
 
-        return self._reconstruct(parent, start, end) if found else None
+        return self._reconstruct(start, end, parent)
 
-    def _reconstruct(self, parent, start, end):
+    # ---------------- helpers ----------------
+    def _valid(self, r, c, visited):
+        return (
+            0 <= r < self.grid.rows and
+            0 <= c < self.grid.cols and
+            self.grid.cells[r][c] != 0 and
+            (r, c) not in visited
+        )
+
+    def _reconstruct(self, start, end, parent):
+        if end not in parent:
+            return None
+
         path = []
         cur = end
 
         while cur != start:
             path.append(cur)
-            cur = parent.get(cur)
-
-            if cur is None:
-                return None
+            cur = parent[cur]
 
         path.append(start)
         path.reverse()
 
-        # ONLY mark final path (important fix)
-        for r, c in path:
-            if (r, c) != start and (r, c) != end:
-                self.grid.cells[r][c] = 2
+        # DO NOT paint full grid anymore
+        self.grid.solution_path = set(path)
 
         return path
